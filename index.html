@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>note記事作成くん</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts: Noto Sans JP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-container">
+            <div class="header-titles">
+                <h1>note記事作成くん<span class="badge">β</span></h1>
+                <p>キーワードからnote向けの記事をAIが自動生成します</p>
+            </div>
+            <button id="settings-btn" class="icon-btn" title="設定">⚙️ 設定</button>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="app-container">
+            
+            <!-- 1. キーワード入力エリア -->
+            <section id="step-keyword" class="step-card active">
+                <div class="step-header">
+                    <span class="step-num">Step 1</span>
+                    <h2>テーマとなるキーワードを入力</h2>
+                </div>
+                <div class="step-content">
+                    <div class="input-group">
+                        <input type="text" id="keyword-input" placeholder="例：中小企業のAI活用、製造業のIoT導入 など" maxlength="100">
+                        <button id="generate-titles-btn" class="primary-btn">タイトル候補を作る</button>
+                    </div>
+                    <p class="error-msg" id="keyword-error"></p>
+                </div>
+            </section>
+
+            <!-- 2. タイトル候補表示エリア -->
+            <section id="step-titles" class="step-card disabled">
+                <div class="step-header">
+                    <span class="step-num">Step 2</span>
+                    <h2>タイトルを選ぶ</h2>
+                </div>
+                <div class="step-content">
+                    <div id="titles-container" class="options-container">
+                        <!-- タイトル候補がここに挿入される -->
+                        <p class="placeholder-text">キーワードを入力してタイトル候補を生成してください。</p>
+                    </div>
+                    <div class="actions">
+                        <button id="generate-outline-btn" class="primary-btn" disabled>このタイトルで構成案を作る</button>
+                        <button id="regenerate-titles-btn" class="secondary-btn" disabled>タイトルを再生成</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. 構成案表示エリア -->
+            <section id="step-outline" class="step-card disabled">
+                <div class="step-header">
+                    <span class="step-num">Step 3</span>
+                    <h2>構成案を確認する</h2>
+                </div>
+                <div class="step-content">
+                    <div id="outline-container" class="content-box">
+                        <p class="placeholder-text">タイトルを選択して構成案を生成してください。</p>
+                    </div>
+                    <div class="actions">
+                        <button id="generate-body-btn" class="primary-btn" disabled>この構成で本文を作る</button>
+                        <button id="regenerate-outline-btn" class="secondary-btn" disabled>構成案を再生成</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 完成記事＆コピーエリア -->
+            <section id="step-result" class="step-card disabled">
+                <div class="step-header">
+                    <span class="step-num">Step 4</span>
+                    <h2>完成記事</h2>
+                </div>
+                <div class="step-content">
+                    <div id="result-container" class="content-box result-box">
+                        <p class="placeholder-text">本文を生成するとここに記事が表示されます。</p>
+                    </div>
+                    <div class="actions action-center">
+                        <button id="copy-btn" class="primary-btn action-lg pulse-btn" disabled>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            全文をコピーする
+                        </button>
+                    </div>
+                    <p class="success-msg" id="copy-success"></p>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- 設定モーダル -->
+    <div id="settings-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>API設定</h3>
+                <button class="close-btn" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="api-key-input">Gemini API Key (オプション)</label>
+                    <input type="password" id="api-key-input" placeholder="AI APIを使用する場合は入力してください">
+                    <p class="help-text">空欄の場合は、テスト用のデモ文章（モック）で動作します。ご自身のGemini APIキーを入力することで本物のAIによる生成が可能になります。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="save-settings-btn" class="primary-btn">設定を保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ローディングオーバーレイ -->
+    <div id="loading-overlay" class="overlay hidden">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <p id="loading-text">AIが生成中...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="ai-api.js?v=4"></script>
+    <script src="app.js?v=4"></script>
+</body>
+</html>
