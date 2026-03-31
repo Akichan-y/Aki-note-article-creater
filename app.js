@@ -2,9 +2,11 @@
 let state = {
     keyword: '',
     selectedTitle: '',
+    selectedLength: 400,
     generatedOutline: '',
     finalArticleRaw: '',
-    finalArticleHtml: ''
+    finalArticleHtml: '',
+    generatedImageUrl: ''
 };
 
 // DOM Elements
@@ -33,13 +35,21 @@ const els = {
     regenerateTitlesBtn: document.getElementById('regenerate-titles-btn'),
     
     // Step 3
-    outlineContainer: document.getElementById('outline-container'),
+    outlineTextarea: document.getElementById('outline-textarea'),
+    lengthOptions: document.getElementsByName('article-length'),
     generateBodyBtn: document.getElementById('generate-body-btn'),
     regenerateOutlineBtn: document.getElementById('regenerate-outline-btn'),
     
     // Step 4
     resultContainer: document.getElementById('result-container'),
     copyBtn: document.getElementById('copy-btn'),
+    
+    // Step 4 Image Generation
+    generateImageBtn: document.getElementById('generate-image-btn'),
+    imageResultBox: document.getElementById('image-result-box'),
+    generatedImage: document.getElementById('generated-image'),
+    copyImageBtn: document.getElementById('copy-image-btn'),
+    imageCopySuccess: document.getElementById('image-copy-success'),
     
     // Utilities
     loadingOverlay: document.getElementById('loading-overlay'),
@@ -84,6 +94,8 @@ function setupEventListeners() {
 
     // Copy
     els.copyBtn.addEventListener('click', handleCopy);
+    els.generateImageBtn.addEventListener('click', handleGenerateImage);
+    els.copyImageBtn.addEventListener('click', handleCopyImage);
 }
 
 // --- Action Handlers ---
@@ -115,9 +127,16 @@ async function handleGenerateTitles() {
 async function handleGenerateOutline() {
     if (!state.selectedTitle) return;
 
-    showLoading('構成案を生成中...');
+    // ここで選択された文字数を取得して保持
+    let selectedLength = 400; // default
+    els.lengthOptions.forEach(opt => {
+        if(opt.checked) selectedLength = parseInt(opt.value, 10);
+    });
+    state.selectedLength = selectedLength;
+
+    showLoading(`構成案を生成中... (指定: ${selectedLength}文字対応)`);
     try {
-        const outline = await window.aiClient.generateOutline(state.selectedTitle);
+        const outline = await window.aiClient.generateOutline(state.selectedTitle, state.selectedLength);
         state.generatedOutline = outline;
         renderOutline(outline);
         enableStep(els.stepOutline);
@@ -132,11 +151,15 @@ async function handleGenerateOutline() {
 }
 
 async function handleGenerateBody() {
-    if (!state.selectedTitle || !state.generatedOutline) return;
+    state.generatedOutline = els.outlineTextarea.value.trim();
+    if (!state.selectedTitle || !state.generatedOutline) {
+        showToast('構成案が入力されていません。', true);
+        return;
+    }
 
-    showLoading('記事本文を生成中... (最大1分程度かかります)');
+    showLoading(`記事本文を生成中... (目安: ${state.selectedLength}文字)`);
     try {
-        const articleRaw = await window.aiClient.generateBody(state.selectedTitle, state.generatedOutline);
+        const articleRaw = await window.aiClient.generateBody(state.selectedTitle, state.generatedOutline, state.selectedLength);
         state.finalArticleRaw = articleRaw;
         
         // markedが読み込まれている場合はHTML変換を利用
@@ -230,15 +253,96 @@ function renderTitles(titles) {
 }
 
 function renderOutline(outlineMarkdown) {
-    if (typeof marked !== 'undefined') {
-        els.outlineContainer.innerHTML = marked.parse(outlineMarkdown);
-    } else {
-        els.outlineContainer.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit;">${outlineMarkdown}</pre>`;
-    }
+    els.outlineTextarea.value = outlineMarkdown;
 }
 
 function renderResult(articleHtml) {
     els.resultContainer.innerHTML = articleHtml;
+}
+
+// --- Image Generation Functions (Ver1.3) ---
+
+async function handleGenerateImage() {
+    if (!state.finalArticleRaw) return;
+
+    showLoading('見出し用画像を生成中... (約10〜20秒かかります)');
+    try {
+        // Gemini APIで記事から英語のプロンプトを生成
+        const englishPrompt = await window.aiClient.generateImagePrompt(state.finalArticleRaw);
+        
+        // Pollinations AIで画像を生成 (1280x670 is highly compatible with note headers)
+        const encodedPrompt = encodeURIComponent(englishPrompt);
+        const seed = Math.floor(Math.random() * 1000000); // 毎回異なる画像を生成するためのシード値
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1280&height=670&nologo=true&seed=${seed}`;
+
+        // 画像をプリロード
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            els.generatedImage.src = imageUrl;
+            els.generatedImage.style.display = 'block';
+            els.imageResultBox.classList.remove('hidden');
+            state.generatedImageUrl = imageUrl;
+            
+            hideLoading();
+            showToast('画像を生成しました！✨');
+            
+            // スムーズスクロールで画像を見せる
+            els.imageResultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        };
+        img.onerror = () => {
+            hideLoading();
+            showToast('画像の読み込みに失敗しました。', true);
+        };
+        
+        // プリロード開始（リクエスト発火）
+        img.src = imageUrl;
+        
+    } catch (e) {
+        hideLoading();
+        showToast('画像生成用のプロンプト作成に失敗しました: ' + e.message, true);
+    }
+}
+
+async function handleCopyImage() {
+    if (!state.generatedImageUrl) return;
+
+    const originalText = els.copyImageBtn.innerHTML;
+    try {
+        els.copyImageBtn.innerHTML = 'コピー処理中...';
+        els.copyImageBtn.disabled = true;
+
+        // Safari対応：Canvasを使って確実にPNG Blobにする
+        const canvas = document.createElement('canvas');
+        canvas.width = els.generatedImage.naturalWidth || 1280;
+        canvas.height = els.generatedImage.naturalHeight || 670;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(els.generatedImage, 0, 0);
+
+        // Safariの厳格なClipboard API要件を満たすため、Promiseを直接渡す
+        const makeImagePromise = new Promise(resolve => {
+            canvas.toBlob(blob => resolve(blob), 'image/png');
+        });
+
+        // ClipboardItemを使ってクリップボードにコピー
+        await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': makeImagePromise })
+        ]);
+
+        els.imageCopySuccess.textContent = '見出し画像をクリップボードにコピーしました！そのまま貼り付けが可能です。';
+        els.copyImageBtn.innerHTML = '✓ コピー完了';
+        
+        setTimeout(() => {
+            els.imageCopySuccess.textContent = '';
+            els.copyImageBtn.innerHTML = originalText;
+            els.copyImageBtn.disabled = false;
+        }, 4000);
+    } catch (e) {
+        console.error('Image Copy Error:', e);
+        showToast('ブラウザのセキュリティ設定等により、画像のクリップボード自動コピーに失敗しました。画像を右クリックしてコピーしてください。', true);
+        els.copyImageBtn.innerHTML = originalText;
+        els.copyImageBtn.disabled = false;
+    }
 }
 
 // --- UI Utilities ---

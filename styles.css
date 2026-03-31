@@ -310,6 +310,57 @@ input[type="text"]:focus, input[type="password"]:focus {
 .content-box ul, .content-box ol { margin: 0 0 1rem 1.5rem; padding-left: 1rem; }
 .content-box li { margin-bottom: 0.4rem; }
 
+/* Textarea */
+.outline-textarea {
+    width: 100%;
+    min-height: 250px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.6;
+    outline: none;
+    transition: border-color var(--transition-speed);
+}
+
+.outline-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(44, 182, 150, 0.1);
+}
+
+/* Length Selection */
+.length-selection {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+}
+
+.section-label {
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.radio-group {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.radio-label input[type="radio"] {
+    accent-color: var(--primary-color);
+    width: 16px;
+    height: 16px;
+}
+
 /* Actions */
 .actions {
     display: flex;
