@@ -58,10 +58,14 @@
                     <div class="length-selection">
                         <p class="section-label">生成する本文の文字量を選んでください</p>
                         <div class="radio-group" id="length-options">
-                            <label class="radio-label"><input type="radio" name="article-length" value="100"> 100文字</label>
-                            <label class="radio-label"><input type="radio" name="article-length" value="200"> 200文字</label>
-                            <label class="radio-label"><input type="radio" name="article-length" value="400" checked> 400文字</label>
-                            <label class="radio-label"><input type="radio" name="article-length" value="1000"> 1000文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="100">
+                                100文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="200">
+                                200文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="400" checked>
+                                400文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="1000">
+                                1000文字</label>
                         </div>
                     </div>
 
@@ -80,7 +84,8 @@
                 </div>
                 <div class="step-content">
                     <p class="help-text">この内容は自由に修正できます。修正後の内容をもとに本文を生成します。</p>
-                    <textarea id="outline-textarea" class="content-box outline-textarea" placeholder="タイトルを選択して構成案を生成してください。"></textarea>
+                    <textarea id="outline-textarea" class="content-box outline-textarea"
+                        placeholder="タイトルを選択して構成案を生成してください。"></textarea>
 
                     <div class="actions">
                         <button id="generate-body-btn" class="primary-btn" disabled>この構成で本文を作る</button>
@@ -111,7 +116,7 @@
                         </button>
                     </div>
                     <p class="success-msg" id="copy-success"></p>
-                    
+
                     <!-- Ver1.3: 画像生成エリア -->
                     <div class="image-generation-area">
                         <div class="image-header">
@@ -119,10 +124,16 @@
                             <button id="generate-image-btn" class="secondary-btn">AIで画像を生成する</button>
                         </div>
                         <div id="image-result-box" class="content-box image-result-box hidden">
-                            <img id="generated-image" class="generated-image" crossOrigin="anonymous" src="" alt="生成された見出し画像">
+                            <img id="generated-image" class="generated-image" crossOrigin="anonymous" src=""
+                                alt="生成された見出し画像">
                             <div class="actions action-center">
                                 <button id="copy-image-btn" class="primary-btn pulse-btn">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
                                     画像をコピーする
                                 </button>
                             </div>
