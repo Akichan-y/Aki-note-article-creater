@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
+<!-- <html lang="ja"></html> -->
+<!-- <html lang="ja"></html> -->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <header class="app-header">
         <div class="header-container">
@@ -23,7 +27,7 @@
 
     <main class="app-main">
         <div class="app-container">
-            
+
             <!-- 1. キーワード入力エリア -->
             <section id="step-keyword" class="step-card active">
                 <div class="step-header">
@@ -50,8 +54,23 @@
                         <!-- タイトル候補がここに挿入される -->
                         <p class="placeholder-text">キーワードを入力してタイトル候補を生成してください。</p>
                     </div>
+
+                    <div class="length-selection">
+                        <p class="section-label">生成する本文の文字量を選んでください</p>
+                        <div class="radio-group" id="length-options">
+                            <label class="radio-label"><input type="radio" name="article-length" value="100">
+                                100文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="200">
+                                200文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="400" checked>
+                                400文字</label>
+                            <label class="radio-label"><input type="radio" name="article-length" value="1000">
+                                1000文字</label>
+                        </div>
+                    </div>
+
                     <div class="actions">
-                        <button id="generate-outline-btn" class="primary-btn" disabled>このタイトルで構成案を作る</button>
+                        <button id="generate-outline-btn" class="primary-btn" disabled>このタイトル・文字数で構成案を作る</button>
                         <button id="regenerate-titles-btn" class="secondary-btn" disabled>タイトルを再生成</button>
                     </div>
                 </div>
@@ -64,9 +83,10 @@
                     <h2>構成案を確認する</h2>
                 </div>
                 <div class="step-content">
-                    <div id="outline-container" class="content-box">
-                        <p class="placeholder-text">タイトルを選択して構成案を生成してください。</p>
-                    </div>
+                    <p class="help-text">この内容は自由に修正できます。修正後の内容をもとに本文を生成します。</p>
+                    <textarea id="outline-textarea" class="content-box outline-textarea"
+                        placeholder="タイトルを選択して構成案を生成してください。"></textarea>
+
                     <div class="actions">
                         <button id="generate-body-btn" class="primary-btn" disabled>この構成で本文を作る</button>
                         <button id="regenerate-outline-btn" class="secondary-btn" disabled>構成案を再生成</button>
@@ -86,11 +106,40 @@
                     </div>
                     <div class="actions action-center">
                         <button id="copy-btn" class="primary-btn action-lg pulse-btn" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
                             全文をコピーする
                         </button>
                     </div>
                     <p class="success-msg" id="copy-success"></p>
+
+                    <!-- Ver1.3: 画像生成エリア -->
+                    <div class="image-generation-area">
+                        <div class="image-header">
+                            <h3>おまけ：見出し画像を作る</h3>
+                            <button id="generate-image-btn" class="secondary-btn">AIで画像を生成する</button>
+                        </div>
+                        <div id="image-result-box" class="content-box image-result-box hidden">
+                            <img id="generated-image" class="generated-image" crossOrigin="anonymous" src=""
+                                alt="生成された見出し画像">
+                            <div class="actions action-center">
+                                <button id="copy-image-btn" class="primary-btn pulse-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    画像をコピーする
+                                </button>
+                            </div>
+                            <p class="success-msg" id="image-copy-success"></p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -129,7 +178,8 @@
     <div id="toast" class="toast hidden"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="ai-api.js?v=4"></script>
-    <script src="app.js?v=4"></script>
+    <script src="ai-api.js?v=7"></script>
+    <script src="app.js?v=7"></script>
 </body>
+
 </html>
