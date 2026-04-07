@@ -1,5 +1,12 @@
 # Aki-note-article-creater
 
+そしてまた、macで編集を行う
+アカウント Akichan-y
+email : a.yamazaki1971@gmail.com
+
+
+
+
 WindowsPCでの　ｙｚ２５０ｚｚaccountでcloneしてみた
 つまり、複数人格での編集を、いま行っている、ということ
 
