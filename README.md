@@ -1,5 +1,10 @@
 # Aki-note-article-creater
 
+4/7　13時３０分
+winﾆﾃ編集
+
+
+
 そしてまた、macで編集を行う
 アカウント Akichan-y
 email : a.yamazaki1971@gmail.com
