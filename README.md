@@ -1,3 +1,8 @@
+0407_1348 再び　win
+ ｺﾝｶｲﾊ､　　develop1デ
+ 
+
+
 # Aki-note-article-creater
 
 4/7　13時３０分
