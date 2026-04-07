@@ -5,6 +5,11 @@
 
 # Aki-note-article-creater
 
+0407_1355　1400
+develop2で行を追加した
+
+
+
 4/7　13時３０分
 winﾆﾃ編集
 
