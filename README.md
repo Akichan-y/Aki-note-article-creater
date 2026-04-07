@@ -1,5 +1,9 @@
 # Aki-note-article-creater
 
+WindowsPCでの　ｙｚ２５０ｚｚaccountでcloneしてみた
+つまり、複数人格での編集を、いま行っている、ということ
+ 
+
 
 Antigrabity でGithubでの公開をすすめられたので、頑張っていよう！と思う
 
